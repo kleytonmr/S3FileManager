@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require_relative "S3FileManager/version"
+require "S3FileManager/base"
+require "S3FileManager/read_file"
 require "aws-sdk-s3"
 require "ostruct"
 require "dotenv"
