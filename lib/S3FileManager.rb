@@ -1,22 +1,16 @@
 # frozen_string_literal: true
 
-require_relative "S3FileManager/version"
+require_relative "s3_file_manager"
 
 module S3FileManager
   class Error < StandardError; end
 
-  class S3FileManager
-    DEFAULT_S3_CONFIG_OPTS = {
-      access_key_id:     ENV['S3_ACCESS_KEY_ID'],
-      secret_access_key: ENV['S3_SECRET_ACCESS_KEY'],
-      region:            ENV['AWS_REGION']
-    }
-
+  class Handler
     def initialize(bucket_name, folder, file_name)
       @folder      = folder
       @file_name   = file_name
       @bucket_name = bucket_name
-      @s3_client   = Aws::S3::Client.new(s3_config_opts)
+      @s3_client   = S3FileManager::S3Client.instance.client
     end
 
     def self.read_file(bucket_name:, folder: nil, file_name:)
@@ -55,23 +49,12 @@ module S3FileManager
       "#{folder}/#{file_name}"
     end
 
-    def s3_config_opts
-      opts = DEFAULT_S3_CONFIG_OPTS
-
-      opts.merge!(
-        endpoint: ENV.fetch('MINIO_ENDPOINT', 'http://minio:9000'),
-        force_path_style: true
-      ) if Rails.env.development?
-
-      opts
-    end
-
     def errors
       @errors ||= []
     end
 
     def valid?
-      errors.blank?
+      errors.empty?
     end
   end
 end
